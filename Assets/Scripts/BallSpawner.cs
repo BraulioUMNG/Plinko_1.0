@@ -3,6 +3,15 @@ using System.Collections;
 
 public class BallSpawner : MonoBehaviour
 {
+
+    public static BallSpawner Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
     [Header("Referencias")]
     public GameObject ballPrefab;
     public Transform spawnPoint;
@@ -53,13 +62,27 @@ public class BallSpawner : MonoBehaviour
         Vector3 offset = new Vector3(
             Random.Range(-spawnSpread, spawnSpread),
             0f,
-            0f
+            Random.Range(-spawnSpread, spawnSpread) // <-- esto es lo nuevo
         );
+
         Vector3 pos = spawnPoint != null
             ? spawnPoint.position + offset
             : transform.position + offset;
 
         GameObject ball = Instantiate(ballPrefab, pos, Quaternion.identity);
+
+        // Darle un pequeño impulso inicial en Z también
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            Vector3 initialForce = new Vector3(
+                Random.Range(-0.5f, 0.5f),
+                0f,
+                Random.Range(-1f, 1f)  // impulso en Z
+            );
+            rb.AddForce(initialForce, ForceMode.Impulse);
+        }
+
         ball.GetComponent<Ball>()?.Init(this);
         _ballCount++;
     }
@@ -72,9 +95,37 @@ public class BallSpawner : MonoBehaviour
 
     public void ResetBalls()
     {
-        // Destruir todas las bolas activas
         foreach (var b in FindObjectsByType<Ball>(FindObjectsSortMode.None))
             Destroy(b.gameObject);
         _ballCount = 0;
+
+        // También limpiar el bowl
+        BowlManager.Instance?.ResetBowl();
     }
+
+    // Llamado por los multiplicadores — spawna una bola en una posición específica
+    public void SpawnBallAt(Vector3 position)
+    {
+        if (_ballCount >= maxBalls) return;
+
+        // Pequeña dispersión para que no salgan todas en el mismo punto
+        Vector3 offset = new Vector3(
+            Random.Range(-0.2f, 0.2f),
+            0f,
+            Random.Range(-0.2f, 0.2f)
+        );
+
+        GameObject ball = Instantiate(ballPrefab, position + offset, Quaternion.identity);
+
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            float zForce = 0.1f;
+            rb.linearVelocity = new Vector3(0f, 0f, zForce);
+        }
+
+        ball.GetComponent<Ball>()?.Init(this);
+        _ballCount++;
+    }
+
 }
