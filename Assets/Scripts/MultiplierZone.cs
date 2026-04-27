@@ -39,19 +39,25 @@ public class MultiplierZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"[Multiplier] Trigger tocado por: {other.gameObject.name}");
+
         if (_cooldownTimer > 0f) return;
 
         Ball ball = other.GetComponent<Ball>();
-        if (ball == null) return;
+        if (ball == null)
+        {
+            Debug.Log("[Multiplier] El objeto NO tiene componente Ball");
+            return;
+        }
 
-        // Spawnear bolas extra desde la posición de esta bola
-        int extraBalls = multiplierValue - 1; // -1 porque la bola original ya existe
+        Debug.Log($"[Multiplier] Bola detectada, spawneando x{multiplierValue - 1} extra");
+
+        int extraBalls = multiplierValue - 1;
         for (int i = 0; i < extraBalls; i++)
             BallSpawner.Instance.SpawnBallAt(other.transform.position);
 
         _cooldownTimer = cooldown;
 
-        // Flash visual
         if (!_flashing)
             StartCoroutine(FlashRoutine());
     }

@@ -87,8 +87,12 @@ public class BallSpawner : MonoBehaviour
         _ballCount++;
     }
 
-    // Llamado por Ball.cs cuando la bola es destruida
     public void OnBallDestroyed()
+    {
+        _ballCount = Mathf.Max(0, _ballCount - 1);
+    }
+
+    public void OnBallReachedBowl()
     {
         _ballCount = Mathf.Max(0, _ballCount - 1);
     }

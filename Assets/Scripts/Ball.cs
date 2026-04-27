@@ -15,7 +15,8 @@ public class Ball : MonoBehaviour
 
     void OnDestroy()
     {
-        _spawner?.OnBallDestroyed();
+        if (!_inBowl)
+            _spawner?.OnBallDestroyed();
     }
 
     void OnCollisionEnter(Collision col)
@@ -28,9 +29,10 @@ public class Ball : MonoBehaviour
     // Llamado por BowlManager para registrar que esta bola llegó
     public void MarkAsInBowl()
     {
+        if (_inBowl) return;
         _inBowl = true;
-        // Cancelar el auto-destroy — esta bola ya llegó a donde tiene que estar
-        CancelInvoke();
+        // Liberar el slot inmediatamente al llegar al bowl
+        _spawner?.OnBallReachedBowl();
     }
 
     public bool IsInBowl() => _inBowl;
