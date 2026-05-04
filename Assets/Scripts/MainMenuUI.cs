@@ -22,39 +22,32 @@ public class MainMenuUI : MonoBehaviour
 
     void Start()
     {
-        // Asegurarse que el menú esté visible al inicio
         menuPanel.SetActive(true);
-
-        // Texto invisible al inicio
         SetTextAlpha(instructionsText, 0f);
     }
 
-    // Enlazado al botón Jugar en el Inspector
     public void OnPlayButtonPressed()
     {
         menuPanel.SetActive(false);
-
-        // Lanzar animación de cámara e instrucciones en paralelo
         CameraAnimator.Instance.AnimateToGamePosition(OnCameraArrived);
         StartCoroutine(ShowInstructionsSequence());
     }
 
     private void OnCameraArrived()
     {
-        // Habilitar el spawner de bolas solo cuando la cámara llegó
+        // Mostrar el GIF cuando la cámara terminó de moverse
+        if (Gif_inicial.Instance != null)
+            Gif_inicial.Instance.ShowGif();
+
+        // Habilitar el spawner de bolas
         if (ballSpawner != null)
             ballSpawner.enabled = true;
     }
 
     private IEnumerator ShowInstructionsSequence()
     {
-        // Fade in
         yield return StartCoroutine(FadeText(instructionsText, 0f, 1f, instructionsFadeInDuration));
-
-        // Permanecer visible
         yield return new WaitForSeconds(instructionsVisibleDuration);
-
-        // Fade out
         yield return StartCoroutine(FadeText(instructionsText, 1f, 0f, instructionsFadeOutDuration));
     }
 
