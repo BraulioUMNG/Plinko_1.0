@@ -39,6 +39,10 @@ public class MultiplierZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (!other.CompareTag("Ball")) return;
+        ScoreManager.Instance.AddScore(basePoints);        // puntos de la zona
+        ScoreManager.Instance.SetMultiplier(zoneMultiplier); // opcional
+
         Debug.Log($"[Multiplier] Trigger tocado por: {other.gameObject.name}");
 
         if (_cooldownTimer > 0f) return;
